@@ -2,6 +2,7 @@ import ChatRoomModel, { CHAT_ROOM_TYPES } from "../models/ChatRoom.js";
 import { ChatMessageModel } from "../models/ChatMessage.js";
 import UserModel from "../models/User.js";
 import mongoose from "mongoose";
+import user from "../controllers/user.js";
 
 class WebSockets {
     users = [];
@@ -81,6 +82,8 @@ class WebSockets {
         client.on("addFriend", async (uid1, uid2, cb) => {
             console.log("adding friend", cb);
             UserModel.requestFriend(uid1, uid2, () => {
+                let userSocket = this.users.filter(user => user.userId === uid2);
+                global.io.to(userSocket[0].socketId).emit('getUserFriends'); 
                 cb();
             });
         });
@@ -95,10 +98,12 @@ class WebSockets {
         //Remove a user as a friend
         client.on("removeFriend", async (uid1, uid2, cb) => {
             console.log("removing friend", cb);
-            uid1 = mongoose.Types.ObjectId(uid1);
-            uid2 = mongoose.Types.ObjectId(uid2);
-            UserModel.removeFriend(uid1, uid2, (err) => {
+            let uid1ObjectId = mongoose.Types.ObjectId(uid1);
+            let uid2ObjectId = mongoose.Types.ObjectId(uid2);
+            UserModel.removeFriend(uid1ObjectId, uid2ObjectId, (err) => {
                 console.log("removing friend err", err);
+                let userSocket = this.users.filter(user => user.userId === uid2);
+                global.io.to(userSocket[0].socketId).emit('getUserFriends'); 
                 cb();
             });
         });
