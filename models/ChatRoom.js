@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-// import chatRoom from '../controllers/chat-room';
 
 export const CHAT_ROOM_TYPES = {
     REGULAR: "regular",

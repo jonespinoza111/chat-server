@@ -1,20 +1,15 @@
 import mongoose from "mongoose";
 import friends from "mongoose-friends";
-// import { v4 as uuidv4 } from "uuid";
 
 const userSchema = new mongoose.Schema(
     {
-        // _id: {
-        //     type: String,
-        //     default: () => uuidv4().replace(/\-/g, ""),
-        // },
         profilePic: { type: String, required: true },
         firstName: { type: String, required: true },
         lastName: { type: String, required: true },
         username: { type: String, required: true },
         email: { type: String, required: true },
         password: { type: String, required: true },
-        invites: { type: Array, default: () => [] },
+        friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Friends' }]
     },
     {
         timestamps: true,
@@ -22,7 +17,7 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-userSchema.plugin(friends());
+userSchema.plugin(friends({ pathName: "friends" }));
 
 userSchema.statics.createUser = async function (profilePic, firstName, lastName, username, email, password) {
     try {
@@ -59,7 +54,9 @@ userSchema.statics.getByUsername = async function (username) {
 
 userSchema.statics.getAllUsers = async function () {
     try {
-        const users = await this.find();
+        const users = await this.find().select('profilePic firstName lastName username email friends');
+  
+        console.log('One two three get all users ', users); 
         return users;
     } catch (err) {
         throw err;

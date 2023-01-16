@@ -31,7 +31,6 @@ class WebSockets {
 
         //User is Online
         client.on("online", (userId) => {
-            myUserId = userId;
             console.log("online userId toy story", userId);
             this.users.push({
                 socketId: client.id,
