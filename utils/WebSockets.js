@@ -177,6 +177,18 @@ class WebSockets {
         //     }
         // });
 
+        //When a user is typing
+        client.on("typingStarted", async (chatRoomId, typerId) => {
+            global.io.in(chatRoomId).emit("userTyping", typerId);
+            console.log('...Typing has started....', chatRoomId, typerId);
+        });
+
+        //When a user stops typing
+        client.on("typingEnded", async (chatRoomId, typerId) => {
+            global.io.in(chatRoomId).emit("userStoppedTyping", typerId);
+            console.log('...Typing has ended....', chatRoomId, typerId);
+        });
+
         //Sends a message in the chatroom
         client.on(
             "sendMessage",
