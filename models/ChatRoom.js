@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+import { ChatMessageModel } from "../models/ChatMessage.js";
 
 export const CHAT_ROOM_TYPES = {
   REGULAR: "regular",
@@ -143,7 +144,9 @@ chatRoomSchema.statics.getChatRoomByRoomId = async function (roomId) {
 chatRoomSchema.statics.deleteChatRoomByRoomId = async function (roomId) {
   try {
     const deletedChatRoom = await this.findByIdAndDelete(roomId);
+    const deletedMessages = await ChatMessageModel.deleteMany({ chatRoomId: roomId }) 
     console.log("deleted room in chatroommodel, ", deletedChatRoom);
+    console.log("deleted messages in chatroommodel, ", deletedMessages);
     return deletedChatRoom;
   } catch (err) {
     console.log("This is get room by id error", err);

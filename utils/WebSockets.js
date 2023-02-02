@@ -143,11 +143,13 @@ class WebSockets {
         );
 
         //Deletes a chat
-        client.on("deleteChat", async (chatRoomId, cb) => {
-            const deletedRoom = await ChatRoomModel.deleteChatRoomByRoomId(
-                chatRoomId
-            );
-            console.log("here is your deleted room in websocket", deletedRoom);
+        client.on("deleteChat", async (roomId, userId, cb) => {
+            let roomInfo = await ChatRoomModel.getChatRoomByRoomId(roomId);
+            
+            if (roomInfo.chatInitiator === userId) {
+                await ChatRoomModel.deleteChatRoomByRoomId(roomId);
+            }
+            console.log('delete delete delete room ', roomInfo);
             cb();
         });
 
@@ -240,9 +242,13 @@ class WebSockets {
             userIds.map((user) => {
                 this.subscribeOtherUser(roomId, user);
             });
-            client.emit("updatedChatRoomInfo", updatedRoomInfo);
+            const chatRoomInfo = await ChatRoomModel.getChatRoomByRoomId(
+                updatedRoomInfo._id
+            );
+            client.emit("updatedChatRoomInfo", chatRoomInfo);
             cb();
         });
+
 
         //Subscribes a user to a chatroom
         client.on("subscribe", (room, otherUserId = "") => {
