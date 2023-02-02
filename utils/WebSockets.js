@@ -165,18 +165,6 @@ class WebSockets {
             this.subscribeOtherUser(chatRoomInfo.chatRoomId, otherUser);
         });
 
-        // client.on("getRoomInfo", async (chatRoomId) => {
-        //     const chatRoomInfo = await ChatRoomModel.getChatRoomByRoomId(
-        //         chatRoomId
-        //     );
-        //     client.join(chatRoomId);
-        //     if (chatRoomInfo) {
-        //         client.emit("chatRoomInfo", chatRoomInfo);
-        //     } else {
-        //         console.log("could not find chatroominfo");
-        //     }
-        // });
-
         //When a user is typing
         client.on("typingStarted", async (chatRoomId, typerId) => {
             global.io.to(chatRoomId).emit("userTyping", typerId);
@@ -245,6 +233,15 @@ class WebSockets {
                 console.log("Look at this chatinfo", chatRoomInfo);
                 callback(chatRoomInfo);
             }
+        });
+
+        client.on("addUsersToRoom", async (roomId, userIds, cb) => {
+            let updatedRoomInfo = await ChatRoomModel.addUsersToRoom(roomId, userIds);
+            userIds.map((user) => {
+                this.subscribeOtherUser(roomId, user);
+            });
+            client.emit("updatedChatRoomInfo", updatedRoomInfo);
+            cb();
         });
 
         //Subscribes a user to a chatroom
