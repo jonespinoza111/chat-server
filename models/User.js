@@ -30,7 +30,7 @@ userSchema.statics.createUser = async function (profilePic, firstName, lastName,
 
 userSchema.statics.getById = async function (uid) {
     try {
-        const user = await this.findOne({ _id: uid });
+        const user = await this.findOne({ _id: uid }).select('firstName lastName email profilePic username createdAt');
         if (!user) {
             throw { error: "No user with this id was found." };
         }

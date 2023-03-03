@@ -12,6 +12,13 @@ import router from "./routes/index.js";
 import userRouter from "./routes/user.js";
 import WebSockets from "./utils/WebSockets.js";
 
+import multer from 'multer';
+import { getFileStream, uploadImage } from "./config/s3.js";
+
+import fs from 'fs';
+import util from 'util';
+const unlinkFile = util.promisify(fs.unlink);
+
 const app = express();
 
 app.use(cors());
@@ -27,8 +34,38 @@ global.io.on("connection", function(client) {
     console.log(' someone has logged in right now', client.id);
 });
 
+const upload = multer({ dest: 'uploads/' });
+
 app.use("/", router);
 app.use("/users", userRouter);
+
+app.get("/images/:key", (req, res) => {
+    console.log('im trying to get your images bro ');
+    const key = req.params.key;
+    console.log(' cool key here ', req.params.key);
+    const readStream = getFileStream(key);
+    readStream.pipe(res);
+})
+
+app.post("/images", upload.array('images', 4), async (req, res) => {
+    console.log('I have arrived!!!!!');
+    console.log('req images, ', req.files);
+    console.log('req body, ', req.body);
+
+    const results = await Promise.all(req.files.map(async (file) => {
+        return await uploadImage(file);
+    }))
+    console.log('these are the results of promise.all files ', results);
+
+
+    req.files.map(async (file) => {
+        return await unlinkFile(file.path);
+    });
+
+    const imagePaths = results.map(result => `/images/${result.key}`);
+
+    res.send({ results, imagePaths });
+});
 
 server.listen(PORT, () =>
     console.log(`The server is running now on PORT ${PORT}`)
