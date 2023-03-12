@@ -83,7 +83,9 @@ class WebSockets {
             console.log("adding friend", cb);
             UserModel.requestFriend(uid1, uid2, () => {
                 let userSocket = this.users.filter(user => user.userId === uid2);
-                global.io.to(userSocket[0].socketId).emit('getUserFriends'); 
+                if (userSocket.length > 0) {
+                    global.io.to(userSocket[0].socketId).emit('getUserFriends'); 
+                }
                 cb();
             });
         });
@@ -103,7 +105,9 @@ class WebSockets {
             UserModel.removeFriend(uid1ObjectId, uid2ObjectId, (err) => {
                 console.log("removing friend err", err);
                 let userSocket = this.users.filter(user => user.userId === uid2);
-                global.io.to(userSocket[0].socketId).emit('getUserFriends'); 
+                if (userSocket.length > 0) {
+                    global.io.to(userSocket[0].socketId).emit('getUserFriends'); 
+                }
                 cb();
             });
         });

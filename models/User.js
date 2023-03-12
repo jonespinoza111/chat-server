@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.plugin(friends({ pathName: "friends" }));
 
+
 userSchema.statics.createUser = async function (profilePic, firstName, lastName, username, email, password) {
     try {
         const user = await this.create({ profilePic, firstName, lastName, username, email, password });
@@ -42,9 +43,9 @@ userSchema.statics.getById = async function (uid) {
 
 userSchema.statics.getByUsername = async function (username) {
     try { 
-        let user = await this.findOne({ username });
+        let user = await this.findOne({ username }, "username _id");
         if (!user)  {
-            user = 'no user found';
+            throw err;
         }
         return user;
     } catch (err) {
@@ -55,8 +56,6 @@ userSchema.statics.getByUsername = async function (username) {
 userSchema.statics.getAllUsers = async function () {
     try {
         const users = await this.find().select('profilePic firstName lastName username email friends');
-  
-        console.log('One two three get all users ', users); 
         return users;
     } catch (err) {
         throw err;
