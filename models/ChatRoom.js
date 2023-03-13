@@ -81,7 +81,6 @@ chatRoomSchema.statics.getRoomsByUserId = async function (userId) {
         return roomInfo;
       })
     );
-    // console.log("all rooms", rooms);
     return rooms;
   } catch (err) {
     console.log("This is get room by userid error", err);
