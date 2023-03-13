@@ -143,9 +143,9 @@ chatRoomSchema.statics.getChatRoomByRoomId = async function (roomId) {
 chatRoomSchema.statics.deleteChatRoomByRoomId = async function (roomId) {
   try {
     const deletedChatRoom = await this.findByIdAndDelete(roomId);
-    const deletedMessages = await ChatMessageModel.deleteMany({ chatRoomId: roomId }) 
-    console.log("deleted room in chatroommodel, ", deletedChatRoom);
-    console.log("deleted messages in chatroommodel, ", deletedMessages);
+    const deletedMessages = await ChatMessageModel.deleteMany({
+      chatRoomId: roomId,
+    });
     return deletedChatRoom;
   } catch (err) {
     console.log("This is get room by id error", err);
@@ -154,19 +154,15 @@ chatRoomSchema.statics.deleteChatRoomByRoomId = async function (roomId) {
 };
 
 chatRoomSchema.statics.addUsersToRoom = async function (roomId, userIds) {
-    console.log('addUsersToRoom roomId', roomId);
-    console.log('addUsersToRoom userIds', userIds);
-    try {
-        const updatedDoc = await this.findOneAndUpdate(
-        { _id: roomId },
-        { $addToSet: { userIds: { $each: userIds } } },
-        { new: true }
-        );
-
-        console.log("update doc doc doc ", updatedDoc);
-        return updatedDoc;
-    } catch (err) {
-        console.log("this is the update error", err);
-    }
+  try {
+    const updatedDoc = await this.findOneAndUpdate(
+      { _id: roomId },
+      { $addToSet: { userIds: { $each: userIds } } },
+      { new: true }
+    );
+    return updatedDoc;
+  } catch (err) {
+    console.log("this is the update error", err);
+  }
 };
 export default mongoose.model("ChatRoom", chatRoomSchema);

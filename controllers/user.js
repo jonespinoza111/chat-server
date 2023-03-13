@@ -59,7 +59,6 @@ const updateById = async (req, res) => {
 
     return res.status(200).json({ success: true, authToken });
   } catch (err) {
-    console.log("this is the update error", err);
     return res.status(500).json({
       success: false,
       error: err,
@@ -68,7 +67,6 @@ const updateById = async (req, res) => {
 };
 
 const createUser = async (req, res) => {
-  console.log("This is the req body", req.body);
   try {
     const { profilePic, firstName, lastName, username, email, password } =
       req.body.userData;

@@ -16,7 +16,6 @@ export const encode = async (req, res, next) => {
 
             };
             const authToken = jwt.sign(payload, process.env.JWT_SECRET_KEY);
-            console.log("This is the auth token ", authToken);
             req.authToken = authToken;
             next();
         } else {

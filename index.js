@@ -40,22 +40,16 @@ app.use("/", router);
 app.use("/users", userRouter);
 
 app.get("/images/:key", (req, res) => {
-    console.log('im trying to get your images bro ');
     const key = req.params.key;
-    console.log(' cool key here ', req.params.key);
     const readStream = getFileStream(key);
     readStream.pipe(res);
 })
 
 app.post("/images", upload.array('images', 4), async (req, res) => {
-    console.log('I have arrived!!!!!');
-    console.log('req images, ', req.files);
-    console.log('req body, ', req.body);
 
     const results = await Promise.all(req.files.map(async (file) => {
         return await uploadImage(file);
     }))
-    console.log('these are the results of promise.all files ', results);
 
 
     req.files.map(async (file) => {

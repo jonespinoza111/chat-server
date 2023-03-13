@@ -32,7 +32,5 @@ export function getFileStream(fileKey) {
         Bucket: bucketName
     }
 
-    console.log('you make me believe');
-
     return s3.getObject(downloadParams).createReadStream();
 }

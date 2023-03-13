@@ -11,7 +11,6 @@ class WebSockets {
 
         //Disconnect from sock
         client.on("disconnect", () => {
-            console.log('yeahhhhhh disconnect', myUserId);
             this.users = this.users.filter(
                 (user) => user.socketId !== client.id
             );
@@ -20,7 +19,6 @@ class WebSockets {
 
         //User is offline
         client.on("offline", (uid) => {
-            console.log('yeahhhhhh offline', uid);
 
             this.users = this.users.filter(
                 (user) => user.socketId !== client.id
@@ -32,7 +30,6 @@ class WebSockets {
 
         //User is Online
         client.on("online", (userId) => {
-            console.log("online userId toy story", userId);
             this.users.push({
                 socketId: client.id,
                 userId,
@@ -44,20 +41,16 @@ class WebSockets {
         client.on("checkUserStatus", (uid, cb) => {
             let userStatus = this.users.find((user) => user.userId === uid);
             userStatus = userStatus ? "online" : "offline";
-            console.log("this is this users status here,", userStatus);
             cb(userStatus);
         });
 
         //Get all users that are online
         client.on("getOnlineUsers", async (userId, cb) => {
-            console.log("this.users", this.users);
             let ids = this.users
                 .filter((user) => user.userId !== userId)
                 .map((user) => {
                     return user.userId;
                 });
-
-            console.log("cool ids", ids);
 
             const onlineUsers = await UserModel.getUsersByIds(ids);
             cb(onlineUsers);
@@ -80,7 +73,6 @@ class WebSockets {
 
         //Requests to add a friend
         client.on("addFriend", async (uid1, uid2, cb) => {
-            console.log("adding friend", cb);
             UserModel.requestFriend(uid1, uid2, () => {
                 let userSocket = this.users.filter(user => user.userId === uid2);
                 if (userSocket.length > 0) {
@@ -93,17 +85,14 @@ class WebSockets {
         //Searches for a users public info
         client.on("searchUser", async (username, cb) => {
             let user = await UserModel.getByUsername(username);
-            console.log('user scrappy doo', user);
             cb(user);
         });
 
         //Remove a user as a friend
         client.on("removeFriend", async (uid1, uid2, cb) => {
-            console.log("removing friend", cb);
             let uid1ObjectId = mongoose.Types.ObjectId(uid1);
             let uid2ObjectId = mongoose.Types.ObjectId(uid2);
             UserModel.removeFriend(uid1ObjectId, uid2ObjectId, (err) => {
-                console.log("removing friend err", err);
                 let userSocket = this.users.filter(user => user.userId === uid2);
                 if (userSocket.length > 0) {
                     global.io.to(userSocket[0].socketId).emit('getUserFriends'); 
@@ -115,7 +104,6 @@ class WebSockets {
         //Get all friends of a user
         client.on("getFriends", async (uid, cb) => {
             UserModel.getFriends(uid, function (err, friends) {
-                console.log("getting friends right now");
                 cb(friends);
             });
         });
@@ -124,7 +112,6 @@ class WebSockets {
         client.on(
             "createChat",
             async (userIds, chatInitiator, roomName, cb) => {
-                console.log("now creating a new chat");
                 const chatType = CHAT_ROOM_TYPES.REGULAR;
                 const chatRoomInfo = await ChatRoomModel.initiateChat(
                     userIds,
@@ -132,8 +119,6 @@ class WebSockets {
                     roomName,
                     chatType
                 );
-
-                console.log("chatroominfo after I create chat", chatRoomInfo);
 
                 client.join(chatRoomInfo.chatRoomId);
                 userIds.map((user) => {
@@ -153,13 +138,11 @@ class WebSockets {
             if (roomInfo.chatInitiator === userId) {
                 await ChatRoomModel.deleteChatRoomByRoomId(roomId);
             }
-            console.log('delete delete delete room ', roomInfo);
             cb();
         });
 
         //Create a DirectMessage
         client.on("createDM", async (chatInitiator, otherUser) => {
-            console.log("now creating a new DM");
             const userIds = [chatInitiator.uid, otherUser.uid];
             const chatType = CHAT_ROOM_TYPES.DIRECT_MESSAGE;
             const chatRoomInfo = await ChatRoomModel.initiateDM(
@@ -174,37 +157,24 @@ class WebSockets {
         //When a user is typing
         client.on("typingStarted", async (chatRoomId, typerId) => {
             global.io.to(chatRoomId).emit("userTyping", typerId);
-            console.log('...Typing has started....', chatRoomId, typerId);
         });
 
         //When a user stops typing
         client.on("typingEnded", async (chatRoomId, typerId) => {
             global.io.to(chatRoomId).emit("userStoppedTyping", typerId);
-            console.log('...Typing has ended....', chatRoomId, typerId);
         });
 
         //Sends a message in the chatroom
         client.on(
             "sendMessage",
             async (message, chatRoomId, messageSender, attachments, callback) => {
-                console.log(
-                    "all info in sendmessage funct",
-                    message,
-                    chatRoomId,
-                    messageSender,
-                    callback
-                );
-                if (attachments) {
-                    console.log('these are the attachments ', attachments);
-                }
+                
                 const post = await ChatMessageModel.createPostInChatRoom(
                     chatRoomId,
                     message,
                     messageSender,
                     attachments
                 );
-                console.log("post on the back end ", post);
-                console.log("rooms in sned message", client.rooms);
                 global.io.in(post.chatRoomId).emit("newMessage", post);
                 
                 // let rooms = Object.keys(client.rooms);
@@ -236,7 +206,6 @@ class WebSockets {
                 }
             });
             if (chatRoomInfo) {
-                console.log("Look at this chatinfo", chatRoomInfo);
                 callback(chatRoomInfo);
             }
         });

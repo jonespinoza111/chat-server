@@ -42,14 +42,6 @@ chatMessageSchema.statics.createPostInChatRoom = async function (
     attachments
 ) {
     try {
-        console.log(
-            "all info in static funct",
-            message,
-            chatRoomId,
-            postedByUser,
-            attachments
-        );
-        console.log("super duper fun");
         const post = await this.create({
             chatRoomId,
             message,
@@ -58,10 +50,8 @@ chatMessageSchema.statics.createPostInChatRoom = async function (
             // readByRecipients: { readByUserId: postedByUser }
         });
 
-        console.log("this is the post in model", post);
 
         postedByUser = mongoose.Types.ObjectId(postedByUser);
-        console.log('postd', postedByUser);
 
         const aggregate = await this.aggregate([
             { $match: { _id: post._id } },
