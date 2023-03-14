@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import config from "./index.js";
 
-const CONNECTION_URL = `mongodb+srv://${config.cluster.username}:${config.cluster.password}@${config.cluster.name}.yvvpgsx.mongodb.net/${config.cluster.db}?retryWrites=true&w=majority`;
+const CONNECTION_URL = `mongodb+srv://${config.cluster.username}:${config.cluster.password}@${config.cluster.name}.yvvpgsx.mongodb.net/${config.cluster.db}?retryWrites=true&w=majority&authSource=admin`;
 
 mongoose.connect(CONNECTION_URL);
 
