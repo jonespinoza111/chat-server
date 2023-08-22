@@ -19,7 +19,7 @@ export const encode = async (req, res, next) => {
             req.authToken = authToken;
             next();
         } else {
-            res.status(400).json({ success: false, message: "The username or password you entered is not correct"})
+            return res.status(400).json({ success: false, message: "The username or password you entered is not correct"})
         }
     } catch (err) {
         return res.status(400).json({ success: false, message: err.error });
