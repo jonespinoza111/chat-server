@@ -1,6 +1,8 @@
 import UserModel from "../models/User.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { checkUsername } from "../utils/checkUsername.js";
+import { encryptPassword } from "../utils/encryptPassword.js";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -70,19 +72,31 @@ const createUser = async (req, res) => {
   try {
     const { profilePic, firstName, lastName, username, email, password } =
       req.body.userData;
+    
+    const encryptedPassword = await encryptPassword(password);
+    console.log('encryypted pass ', encryptedPassword);
+
+    const isUsernameTaken = await checkUsername(username);
+    console.log('is username available? ', isUsernameTaken);
+
+    if (isUsernameTaken) {
+      return res.status(500).json({ success: false, message: 'Username is already taken' })
+    }
+    
+      
     const user = await UserModel.createUser(
       profilePic,
       firstName,
       lastName,
       username,
       email,
-      password
+      encryptedPassword
     );
     return res.status(200).json({ success: true, user });
   } catch (err) {
     return res.status(500).json({
       success: false,
-      error: err,
+      error: 'User could not be created',
     });
   }
 };

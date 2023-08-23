@@ -1,11 +1,22 @@
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
+import { encryptPassword } from "../utils/encryptPassword.js";
+import bcrypt from 'bcrypt';
 
 export const encode = async (req, res, next) => {
     try {
         const { username, password } = req.body.userData;
+
         const user = await UserModel.findOne({ username });
-        if (user.password === password) {
+        if (!user) {
+            return res.status(400).json({ success: false, message: "No user found with that username" })
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+        console.log('I wonder if the password is correct ', isPasswordCorrect);
+
+        if (isPasswordCorrect) {
             const payload = {
                 uid: user._id,
                 username: user.username,
@@ -19,7 +30,7 @@ export const encode = async (req, res, next) => {
             req.authToken = authToken;
             next();
         } else {
-            return res.status(400).json({ success: false, message: "The username or password you entered is not correct"})
+            return res.status(400).json({ success: false, message: "The password you entered is incorrect"})
         }
     } catch (err) {
         return res.status(400).json({ success: false, message: err.error });
